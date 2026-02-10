@@ -104,7 +104,7 @@ function addon:ParseItemLink(itemLink)
         for i = 1, numModifiers do
             local modType = parts[modifierStartIndex + (i * 2) - 1]
             local modValue = parts[modifierStartIndex + (i * 2)]
-            if modType and modValue and modType ~= "" and modValue ~= "" then
+            if modType and modValue and modType ~= "" and modValue ~= "" and modType == "9" then
                 table.insert(modifierList, modType .. "=" .. modValue)
             end
         end
