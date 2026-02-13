@@ -132,30 +132,40 @@ function addon:FormatCSVLine(data)
 end
 
 --------------------------
--- Generic Bag Scanner
+-- Item Aggregation
 --------------------------
 
-function addon:ScanBags(bagIndices, checkboxOffset)
-    local lines = {}
-    
-    checkboxOffset = checkboxOffset or 0
-    
-    for i, bagIndex in ipairs(bagIndices) do
-        local checkboxIndex = i + checkboxOffset
-        if self:IsCheckboxChecked(checkboxIndex) then
-            local numSlots = self:SafeGetContainerNumSlots(bagIndex)
-            
-            for slot = 1, numSlots do
-                local itemInfo = self:SafeGetContainerItemInfo(bagIndex, slot)
-                if itemInfo and itemInfo.hyperlink then
-                    local data = self:GetItemExportData(itemInfo.hyperlink, itemInfo.stackCount, bagIndex, slot)
-                    if data then
-                        table.insert(lines, self:FormatCSVLine(data))
-                    end
-                end
-            end
+-- Build a unique key from the fields that identify a "same" item
+function addon:GetItemKey(data)
+    return string.format("%s;%s;%s", tostring(data.itemID), data.bonusIDs, data.modifiers)
+end
+
+-- Aggregate a list of item data tables, summing quantities for duplicates
+function addon:AggregateItems(itemDataList)
+    local keyMap = {}   -- key -> aggregated data
+    local order = {}    -- preserve insertion order
+
+    for _, data in ipairs(itemDataList) do
+        local key = self:GetItemKey(data)
+        if keyMap[key] then
+            keyMap[key].quantity = keyMap[key].quantity + data.quantity
+        else
+            -- Copy the data so we don't mutate the original
+            keyMap[key] = {
+                itemID    = data.itemID,
+                itemName  = data.itemName,
+                ilvl      = data.ilvl,
+                bonusIDs  = data.bonusIDs,
+                modifiers = data.modifiers,
+                quantity  = data.quantity,
+            }
+            table.insert(order, key)
         end
     end
-    
-    return lines
+
+    local aggregated = {}
+    for _, key in ipairs(order) do
+        table.insert(aggregated, keyMap[key])
+    end
+    return aggregated
 end

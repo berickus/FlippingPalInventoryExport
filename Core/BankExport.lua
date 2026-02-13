@@ -9,7 +9,7 @@ local addon = FlippingPalExport
 --------------------------
 
 local function ExportCharacterBank()
-    local list = { addon.CSV_HEADER }
+    local itemDataList = {}
     
     -- Scan character bank tabs (bag indices 6-11)
     for i, bagIndex in ipairs(addon.CHARACTER_BANK_TABS) do
@@ -21,14 +21,21 @@ local function ExportCharacterBank()
                 if itemInfo and itemInfo.hyperlink then
                     local data = addon:GetItemExportData(itemInfo.hyperlink, itemInfo.stackCount, bagIndex, slot)
                     if data then
-                        table.insert(list, addon:FormatCSVLine(data))
+                        table.insert(itemDataList, data)
                     end
                 end
             end
         end
     end
     
-    return table.concat(list)
+    -- Aggregate duplicates and format CSV lines
+    local aggregated = addon:AggregateItems(itemDataList)
+    local lines = { addon.CSV_HEADER }
+    for _, data in ipairs(aggregated) do
+        table.insert(lines, addon:FormatCSVLine(data))
+    end
+    
+    return table.concat(lines)
 end
 
 --------------------------
