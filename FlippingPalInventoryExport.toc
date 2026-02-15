@@ -1,10 +1,11 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: Flipping Pal Inventory Export
 ## Notes: Exports Inventory, Bank, and Warbank contents to CSV format
 ## Author: Berickus
-## Version: 1.0
+## Version: @project-version@
 ## SavedVariables: FlippingPalInventoryExportDB
 ## IconTexture: Interface\Icons\INV_Misc_Coin_01
+## X-Curse-Project-ID: 1463186
 
 # Core modules (load order matters)
 Core\Core.lua
